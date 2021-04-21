@@ -4,6 +4,7 @@ import utils.Priority;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Predicate;
 
 /**
  * Library class stores the activities that occurs in the system.
@@ -18,12 +19,9 @@ public class Library {
      */
     public static class Librarian {
 
-//        private Priority priority;
         Library library = new Library();
 
         public Librarian(Priority priority) {
-//            this.priority = priority;
-
             library.queue = new PriorityQueue<>();
         }
 
@@ -50,8 +48,10 @@ public class Library {
          *
          * @param book object
          */
-        public void addBook(Book book) {
-            if (getBookList().size() > 0 && checkIfBookExists(book)) {
+
+        //I used predicates so that different implementation can test different use case.
+        public void addBook(Book book, Predicate<Book> predicate) {
+            if (getBookList().size() > 0 && predicate.test(book)) {
                 int bookInBookListIndex = getBookList().indexOf(book);
                 Book bookInBookList = getBookList().get(bookInBookListIndex);
                 bookInBookList.updateQuantity((bookInBookList.getQuantity() + book.getQuantity()));
@@ -65,10 +65,7 @@ public class Library {
          * Print List of Books in the library.
          */
         public void printBookListInLibrary() {
-            for (Book bookInLibrary: getBookList()) {
-                System.out.println("BookName: " + bookInLibrary.getName() + " Quantity: " + bookInLibrary.getQuantity());
-            }
-
+            getBookList().stream().forEach(book -> System.out.println("BookName: " + book.getName() + " Quantity: " + book.getQuantity()));
         }
 
         /**
@@ -77,7 +74,7 @@ public class Library {
          * @param book object to check
          * @return boolean, either true or false.
          */
-        private boolean checkIfBookExists(Book book)
+        public boolean checkIfBookExists(Book book)
         {
             return getBookList().contains(book);
         }
@@ -100,11 +97,11 @@ public class Library {
         public String borrowBookToUser(Book book) {
 
             if (!getBookList().contains(book)) {
-                return String.format("When don't have %s book in our Library.", book.getName());
+                return String.format("We don't have %s book in our Library.", book.getName());
             }
             Book bookInBookList = getBookList().get(getBookList().indexOf(book));
 
-            if (bookInBookList.getQuantity() < 1 ) {
+            if (bookInBookList.getQuantity() == 0 ) {
                 return "Book Taken!";
             }
             else if (bookInBookList.getQuantity() >= 1) {
@@ -133,13 +130,14 @@ public class Library {
          * @param book object
          * @return acknowledged message when the book is returned.
          */
-        public String returnBorrowedBook(User user, Book book) {
+        public String returnBorrowedBook(User user, Book book, Librarian librarian) {
             if (!getUsersThatBorrowedBooks().containsKey(user)) {
                 return String.format("Hello, %s, you details is not in our system!", user.getFullName());
             } else {
                 Book bookInBookList = getBookList().get(getBookList().indexOf(book));
                 bookInBookList.updateQuantity((bookInBookList.getQuantity()+1));
                 getUsersThatBorrowedBooks().remove(user);
+                librarian.registerUser(user);
 
                 return String.format("Thank you %s for returning %s.",user.getFullName(),book.getName());
             }

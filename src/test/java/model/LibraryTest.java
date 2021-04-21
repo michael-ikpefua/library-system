@@ -32,7 +32,7 @@ class LibraryTest {
 
     void addNewBookToTheLibrary(Book ...books) {
         for (Book book : Arrays.asList(books)) {
-            librarian.addBook(book);
+            librarian.addBook(book, librarian::checkIfBookExists);
         }
     }
 
@@ -104,7 +104,7 @@ class LibraryTest {
         librarian.borrowBookToUser(gameOfThronesBook);
 
         assertEquals("Thank you Teacher Thomas for returning Game of Thrones.",
-                librarian.returnBorrowedBook(teacher, gameOfThronesBook));
+                librarian.returnBorrowedBook(teacher, gameOfThronesBook, librarian));
     }
 
     @Test
@@ -113,8 +113,8 @@ class LibraryTest {
         librarian1.registerUser(seniorStudent);
         librarian1.registerUser(teacher);
 
-        librarian1.addBook(gameOfThronesBook);
-        librarian1.addBook(thinkAndGrowRichBook);
+        librarian1.addBook(gameOfThronesBook, librarian::checkIfBookExists);
+        librarian1.addBook(thinkAndGrowRichBook, librarian::checkIfBookExists);
 
         assertEquals("Hello, Junior Student here is the \"Game of Thrones\" book you are borrowing",
                 librarian1.borrowBookToUser(gameOfThronesBook));
