@@ -32,7 +32,6 @@ public class Main {
          */
         bookList.forEach((book) -> librarian.addBook(book, librarian::checkIfBookExists));
 
-//        System.out.println("Book name: " + librarian.getBookDetails(book1).getName() + ", has " + librarian.getBookDetails(book1).getQuantity() + " quantity(ies)");
         librarian.printBookListInLibrary(); //Use Case 1.1: Shows list of books. I used streams.
 //
 //        /**
